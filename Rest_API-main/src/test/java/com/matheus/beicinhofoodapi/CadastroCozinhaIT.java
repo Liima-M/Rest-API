@@ -3,12 +3,11 @@ package com.matheus.beicinhofoodapi;
 import com.matheus.beicinhofoodapi.domain.model.Cozinha;
 import com.matheus.beicinhofoodapi.domain.repository.CozinhaRepository;
 import com.matheus.beicinhofoodapi.util.DataBaseCleaner;
+import com.matheus.beicinhofoodapi.util.ResourceUtils;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 
-import org.flywaydb.core.Flyway;
 import org.hamcrest.Matchers;
-import org.junit.Before;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -26,6 +25,7 @@ import static org.hamcrest.Matchers.equalTo;
 @TestPropertySource("/application-test.properties")
 public class CadastroCozinhaIT {
 
+    private static final int COZINHA_ID_INEXISTENTE  = 100;
     @LocalServerPort
     private int port;
     @Autowired
@@ -34,11 +34,18 @@ public class CadastroCozinhaIT {
     @Autowired
     private CozinhaRepository cozinhaRepository;
 
+    private Cozinha cozinhaIdiana;
+    private int quantidadeCozinhasCadastradas;
+    private String jsonCorretoCozinhaChinesa;
+
     @BeforeEach
     public void setUp(){
         RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
         RestAssured.port = port;
         RestAssured.basePath = "/cozinhas";
+
+        jsonCorretoCozinhaChinesa = ResourceUtils.getContentFromResource(
+                "/json/correto/cozinha-chinesa.json");
 
         dataBaseCleaner.clearTables();
         prepararDados();
@@ -56,20 +63,20 @@ public class CadastroCozinhaIT {
     }
 
     @Test
-    public void deveConter2Cozinhas_QuandoConsultarCozinhas() {
+    public void deveRetornarQuantidadeCorretaDeCozinhas_QuandoConsultarCozinhas() {
 
         RestAssured.given()
                 .accept(ContentType.JSON)
             .when()
                 .get()
             .then()
-                .body("", Matchers.hasSize(2));
+                .body("", Matchers.hasSize(quantidadeCozinhasCadastradas));
     }
 
     @Test
-    public void testRetornarStatus201_QuandoCadastrarCozinha() {
+    public void deveRetornarStatus201_QuandoCadastrarCozinha() {
         RestAssured.given()
-                .body("{ \"nome\": \"Chinesa\" }")
+                .body(jsonCorretoCozinhaChinesa)
                 .contentType(ContentType.JSON)
                 .accept(ContentType.JSON)
                 .when()
@@ -81,18 +88,18 @@ public class CadastroCozinhaIT {
     @Test
     public void deveRetornarRespostaEStatusCorretos_QuandoConsultarCozinhaExistente(){
         RestAssured.given()
-                .pathParam("cozinhaId", 2)
+                .pathParam("cozinhaId", cozinhaIdiana.getId())
                 .accept(ContentType.JSON)
             .when()
                 .get("/{cozinhaId}")
             .then()
                 .statusCode(HttpStatus.OK.value())
-                .body("nome", equalTo("Indiana"));
+                .body("nome", equalTo(cozinhaIdiana.getNome()));
     }
     @Test
     public void deveRetornarStatus404_QuandoConsultarCozinhaInexistente(){
         RestAssured.given()
-                .pathParam("cozinhaId", 100)
+                .pathParam("cozinhaId", COZINHA_ID_INEXISTENTE)
                 .accept(ContentType.JSON)
             .when()
                 .get("/{cozinhaId}")
@@ -100,13 +107,15 @@ public class CadastroCozinhaIT {
                 .statusCode(HttpStatus.NOT_FOUND.value());
     }
     private void prepararDados(){
-        Cozinha cozinha1 = new Cozinha();
-        cozinha1.setNome("Tailandesa");
-        cozinhaRepository.save(cozinha1);
+        Cozinha cozinhaTailandesa = new Cozinha();
+        cozinhaTailandesa.setNome("Tailandesa");
+        cozinhaRepository.save(cozinhaTailandesa);
 
-        Cozinha cozinha2 = new Cozinha();
-        cozinha2.setNome("Indiana");
-        cozinhaRepository.save(cozinha2);
+        cozinhaIdiana = new Cozinha();
+        cozinhaIdiana.setNome("Indiana");
+        cozinhaRepository.save(cozinhaIdiana);
+
+        quantidadeCozinhasCadastradas = (int) cozinhaRepository.count();
     }
 
 }
