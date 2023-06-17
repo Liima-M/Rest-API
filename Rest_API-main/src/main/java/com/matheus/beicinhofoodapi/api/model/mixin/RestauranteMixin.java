@@ -8,11 +8,10 @@ import com.matheus.beicinhofoodapi.domain.model.Endereco;
 import com.matheus.beicinhofoodapi.domain.model.FormaPagamento;
 import com.matheus.beicinhofoodapi.domain.model.Produto;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.time.OffsetDateTime;
 import java.util.List;
 
-public class RestauranteMixin {
+public abstract class RestauranteMixin {
 
     @JsonIgnoreProperties(value = "nome", allowGetters = true)
     private Cozinha cozinha;
@@ -20,16 +19,16 @@ public class RestauranteMixin {
     @JsonIgnore
     private Endereco endereco;
 
-    @JsonIgnore
-    private LocalDateTime dataCadastro;
+//    @JsonIgnore
+    private OffsetDateTime dataCadastro;
+
+//    @JsonIgnore
+    private OffsetDateTime dataAtualizacao;
 
     @JsonIgnore
-    private LocalDateTime dataAtualizacao;
+    private List<FormaPagamento> formasPagamento;
 
     @JsonIgnore
-    private List<FormaPagamento> formasPagamento = new ArrayList<>();
-
-    @JsonIgnore
-    private List<Produto> produtos = new ArrayList<>();
+    private List<Produto> produtos;
 
 }
