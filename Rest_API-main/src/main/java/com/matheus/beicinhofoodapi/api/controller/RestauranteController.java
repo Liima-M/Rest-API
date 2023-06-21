@@ -5,9 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.matheus.beicinhofoodapi.api.model.CozinhaModel;
 import com.matheus.beicinhofoodapi.api.model.RestauranteModel;
+import com.matheus.beicinhofoodapi.api.model.input.RestauranteInput;
 import com.matheus.beicinhofoodapi.core.validation.ValidacaoException;
 import com.matheus.beicinhofoodapi.domain.exception.CozinhaNaoEncontradaException;
 import com.matheus.beicinhofoodapi.domain.exception.NegocioException;
+import com.matheus.beicinhofoodapi.domain.model.Cozinha;
 import com.matheus.beicinhofoodapi.domain.model.Restaurante;
 import com.matheus.beicinhofoodapi.domain.repository.RestauranteRepository;
 import com.matheus.beicinhofoodapi.domain.service.CadastroRestauranteService;
@@ -41,7 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(value = "/restaurantes")
 public class RestauranteController {
-    
+
     @Autowired
     private RestauranteRepository restauranteRepository;
 
@@ -62,8 +64,10 @@ public class RestauranteController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public RestauranteModel adicionar(@RequestBody @Valid Restaurante restaurante) {
+    public RestauranteModel adicionar(@RequestBody @Valid RestauranteInput restauranteInput) {
         try {
+            Restaurante restaurante = toDomainObject(restauranteInput);
+
             return toModel(cadastroRestaurante.salvar(restaurante));
         } catch (CozinhaNaoEncontradaException e) {
             throw new NegocioException(e.getMessage());
@@ -72,8 +76,10 @@ public class RestauranteController {
 
     @PutMapping("/{restauranteId}")
     public RestauranteModel atualizar(@PathVariable Long restauranteId,
-                                      @RequestBody @Valid Restaurante restaurante) {
+                                      @RequestBody @Valid RestauranteInput restauranteInput) {
         try {
+            Restaurante restaurante = toDomainObject(restauranteInput);
+
             Restaurante restauranteAtual = cadastroRestaurante.buscarOuFalhar(restauranteId);
 
             BeanUtils.copyProperties(restaurante, restauranteAtual,
@@ -102,6 +108,19 @@ public class RestauranteController {
         return restaurantes.stream()
                 .map(restaurante -> toModel(restaurante))
                 .collect(Collectors.toList());
+    }
+
+    private Restaurante toDomainObject(RestauranteInput restauranteInput) {
+        Restaurante restaurante = new Restaurante();
+        restaurante.setNome(restauranteInput.getNome());
+        restaurante.setTaxaFrete(restauranteInput.getTaxaFrete());
+
+        Cozinha cozinha = new Cozinha();
+        cozinha.setId(restauranteInput.getCozinha().getId());
+
+        restaurante.setCozinha(cozinha);
+
+        return restaurante;
     }
 
 }
