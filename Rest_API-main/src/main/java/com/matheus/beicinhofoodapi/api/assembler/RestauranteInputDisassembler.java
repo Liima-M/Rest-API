@@ -1,6 +1,7 @@
 package com.matheus.beicinhofoodapi.api.assembler;
 
 import com.matheus.beicinhofoodapi.api.model.input.RestauranteInput;
+import com.matheus.beicinhofoodapi.domain.model.Cidade;
 import com.matheus.beicinhofoodapi.domain.model.Cozinha;
 import com.matheus.beicinhofoodapi.domain.model.Restaurante;
 import org.modelmapper.ModelMapper;
@@ -18,6 +19,10 @@ public class RestauranteInputDisassembler {
 
     public void copyToDomainObject(RestauranteInput restauranteInput, Restaurante restaurante){
         restaurante.setCozinha(new Cozinha());
+
+        if (restaurante.getEndereco() != null){
+            restaurante.getEndereco() .setCidade(new Cidade());
+        }
 
         modelMapper.map(restauranteInput, restaurante);
     }

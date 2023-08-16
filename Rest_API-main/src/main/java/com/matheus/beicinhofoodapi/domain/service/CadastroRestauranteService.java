@@ -2,6 +2,7 @@ package com.matheus.beicinhofoodapi.domain.service;
 
 import com.matheus.beicinhofoodapi.domain.exception.EntidadeNaoEncontradaException;
 import com.matheus.beicinhofoodapi.domain.exception.RestauranteNaoEncontradoException;
+import com.matheus.beicinhofoodapi.domain.model.Cidade;
 import com.matheus.beicinhofoodapi.domain.model.Cozinha;
 import com.matheus.beicinhofoodapi.domain.model.Restaurante;
 import com.matheus.beicinhofoodapi.domain.repository.RestauranteRepository;
@@ -19,13 +20,19 @@ public class CadastroRestauranteService {
     @Autowired
     private CadastroCozinhaService cadastroCozinha;
 
+    @Autowired
+    private CadastroCidadeService cadastroCidade;
+
     @Transactional
     public Restaurante salvar(Restaurante restaurante) {
         Long cozinhaId = restaurante.getCozinha().getId();
+        Long cidadeId = restaurante.getEndereco() .getCidade().getId();
 
         Cozinha cozinha = cadastroCozinha.buscarOuFalhar(cozinhaId);
+        Cidade cidade = cadastroCidade.buscarOuFalhar(cidadeId);
 
         restaurante.setCozinha(cozinha);
+        restaurante.getEndereco() .setCidade(cidade);
 
         return restauranteRepository.save(restaurante);
     }

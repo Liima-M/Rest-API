@@ -4,6 +4,7 @@ import com.matheus.beicinhofoodapi.api.assembler.RestauranteInputDisassembler;
 import com.matheus.beicinhofoodapi.api.assembler.RestauranteModelAssembler;
 import com.matheus.beicinhofoodapi.api.model.RestauranteModel;
 import com.matheus.beicinhofoodapi.api.model.input.RestauranteInput;
+import com.matheus.beicinhofoodapi.domain.exception.CidadeNaoEncontradaException;
 import com.matheus.beicinhofoodapi.domain.exception.CozinhaNaoEncontradaException;
 import com.matheus.beicinhofoodapi.domain.exception.NegocioException;
 import com.matheus.beicinhofoodapi.domain.model.Restaurante;
@@ -54,7 +55,7 @@ public class RestauranteController {
             Restaurante restaurante = restauranteInputDisassembler.toDomainObject(restauranteInput);
 
             return restauranteModelAssembler.toModel(cadastroRestaurante.salvar(restaurante));
-        } catch (CozinhaNaoEncontradaException e) {
+        } catch (CozinhaNaoEncontradaException | CidadeNaoEncontradaException e) {
             throw new NegocioException(e.getMessage());
         }
     }
@@ -72,7 +73,7 @@ public class RestauranteController {
 //                    "id", "formasPagamento", "endereco", "dataCadastro", "produtos");
 
             return restauranteModelAssembler.toModel(cadastroRestaurante.salvar(restauranteAtual));
-        } catch (CozinhaNaoEncontradaException e) {
+        } catch (CozinhaNaoEncontradaException | CidadeNaoEncontradaException e) {
             throw new NegocioException(e.getMessage());
         }
     }
