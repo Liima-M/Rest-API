@@ -4,6 +4,7 @@ import com.matheus.beicinhofoodapi.domain.exception.EntidadeNaoEncontradaExcepti
 import com.matheus.beicinhofoodapi.domain.exception.RestauranteNaoEncontradoException;
 import com.matheus.beicinhofoodapi.domain.model.Cidade;
 import com.matheus.beicinhofoodapi.domain.model.Cozinha;
+import com.matheus.beicinhofoodapi.domain.model.FormaPagamento;
 import com.matheus.beicinhofoodapi.domain.model.Restaurante;
 import com.matheus.beicinhofoodapi.domain.repository.RestauranteRepository;
 
@@ -22,6 +23,9 @@ public class CadastroRestauranteService {
 
     @Autowired
     private CadastroCidadeService cadastroCidade;
+
+    @Autowired
+    CadastroFormaPagamentoService cadastroFormaPagamento;
 
     @Transactional
     public Restaurante salvar(Restaurante restaurante) {
@@ -54,6 +58,22 @@ public class CadastroRestauranteService {
     public Restaurante buscarOuFalhar(Long restauranteId) {
         return restauranteRepository.findById(restauranteId)
                 .orElseThrow(() -> new RestauranteNaoEncontradoException(restauranteId));
+    }
+
+    @Transactional
+    public void desassociarFormaPagamento(Long restauranteId, Long formaPagamentoId){
+        Restaurante restaurante = buscarOuFalhar(restauranteId);
+        FormaPagamento formaPagamento = cadastroFormaPagamento.buscarOuFalhar(formaPagamentoId);
+
+        restaurante.removerFormaPagamento(formaPagamento);
+    }
+
+    @Transactional
+    public void associarFormaPagamento(Long restauranteId, Long formaPagamentoId){
+        Restaurante restaurante = buscarOuFalhar(restauranteId);
+        FormaPagamento formaPagamento = cadastroFormaPagamento.buscarOuFalhar(formaPagamentoId);
+
+        restaurante.adicionarFormaPagamento(formaPagamento);
     }
 
 }
