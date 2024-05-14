@@ -32,10 +32,10 @@ public class UsuarioController {
     private UsuarioInputDisassembler usuarioInputDisassembler;
 
     @GetMapping
-    public List<UsuarioModel> listar(){
-        List<Usuario> todosUsuario = usuarioRepository.findAll();
+    public List<UsuarioModel> listar() {
+        List<Usuario> todasUsuarios = usuarioRepository.findAll();
 
-        return usuarioModelAssembler.toCollection(todosUsuario);
+        return usuarioModelAssembler.toCollectionModel(todasUsuarios);
     }
 
     @GetMapping("/{usuarioId}")

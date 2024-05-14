@@ -7,6 +7,7 @@ import com.matheus.beicinhofoodapi.api.model.input.RestauranteInput;
 import com.matheus.beicinhofoodapi.domain.exception.CidadeNaoEncontradaException;
 import com.matheus.beicinhofoodapi.domain.exception.CozinhaNaoEncontradaException;
 import com.matheus.beicinhofoodapi.domain.exception.NegocioException;
+import com.matheus.beicinhofoodapi.domain.exception.RestauranteNaoEncontradoException;
 import com.matheus.beicinhofoodapi.domain.model.Restaurante;
 import com.matheus.beicinhofoodapi.domain.repository.RestauranteRepository;
 import com.matheus.beicinhofoodapi.domain.service.CadastroRestauranteService;
@@ -90,6 +91,25 @@ public class RestauranteController {
         cadastroRestaurante.inativar(restauranteId);
     }
 
+    @PutMapping("/ativacoes")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void ativarMultiplos(@RequestBody List<Long> restauranteIds) {
+        try {
+            cadastroRestaurante.ativar(restauranteIds);
+        } catch (RestauranteNaoEncontradoException e) {
+            throw new NegocioException(e.getMessage(), e);
+        }
+    }
+
+    @DeleteMapping("/ativacoes")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void inativarMultiplos(@RequestBody List<Long> restauranteIds) {
+        try {
+            cadastroRestaurante.inativar(restauranteIds);
+        } catch (RestauranteNaoEncontradoException e) {
+            throw new NegocioException(e.getMessage(), e);
+        }
+    }
     @PutMapping("/{restauranteId}/abertura")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void abrir(@PathVariable Long restauranteId){

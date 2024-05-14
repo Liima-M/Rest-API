@@ -3,6 +3,8 @@ package com.matheus.beicinhofoodapi.domain.service;
 import com.matheus.beicinhofoodapi.domain.exception.EntidadeEmUsoException;
 import com.matheus.beicinhofoodapi.domain.exception.NegocioException;
 import com.matheus.beicinhofoodapi.domain.exception.UsuarioNaoEncontradoException;
+import com.matheus.beicinhofoodapi.domain.model.Grupo;
+import com.matheus.beicinhofoodapi.domain.model.Permissao;
 import com.matheus.beicinhofoodapi.domain.model.Usuario;
 import com.matheus.beicinhofoodapi.domain.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,9 @@ public class CadastroUsuarioService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private CadastroGrupoService cadastroGrupo;
 
 
     @Transactional
@@ -51,5 +56,25 @@ public class CadastroUsuarioService {
     public Usuario buscarOufalhar(Long usuarioId){
         return usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new UsuarioNaoEncontradoException(usuarioId));
+    }
+
+    @Transactional
+    public void desassociarGrupo(Long usuarioId, Long grupoId){
+        Usuario usuario = buscarOufalhar(usuarioId);
+        Grupo grupo = cadastroGrupo.buscarOuFalhar(grupoId);
+
+        usuario.removerGrupo(grupo);
+    }
+
+    @Transactional
+    public void associarGrupo(Long usuarioId, Long grupoId){
+        Usuario usuario = buscarOufalhar(usuarioId);
+        Grupo grupo = cadastroGrupo.buscarOuFalhar(grupoId);
+
+        usuario.adicionarGrupo(grupo);
+    }
+
+    public Usuario buscarOuFalhar(Long usuarioId){
+        return usuarioRepository.findById(usuarioId).orElseThrow(() -> new UsuarioNaoEncontradoException(usuarioId));
     }
 }
