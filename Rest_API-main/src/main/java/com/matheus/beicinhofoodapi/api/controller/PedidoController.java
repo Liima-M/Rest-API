@@ -1,17 +1,23 @@
 package com.matheus.beicinhofoodapi.api.controller;
 
+import com.matheus.beicinhofoodapi.api.assembler.PedidoInputDisassembler;
 import com.matheus.beicinhofoodapi.api.assembler.PedidoModelAssembler;
+import com.matheus.beicinhofoodapi.api.assembler.PedidoResumoModelAssembler;
 import com.matheus.beicinhofoodapi.api.model.PedidoModel;
+import com.matheus.beicinhofoodapi.api.model.PedidoResumoModel;
+import com.matheus.beicinhofoodapi.api.model.input.PedidoInput;
+import com.matheus.beicinhofoodapi.domain.exception.EntidadeNaoEncontradaException;
+import com.matheus.beicinhofoodapi.domain.exception.NegocioException;
 import com.matheus.beicinhofoodapi.domain.model.Pedido;
+import com.matheus.beicinhofoodapi.domain.model.Usuario;
 import com.matheus.beicinhofoodapi.domain.repository.PedidoRepository;
 import com.matheus.beicinhofoodapi.domain.service.EmissaoPedidoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -22,21 +28,45 @@ public class PedidoController {
     private PedidoRepository pedidoRepository;
 
     @Autowired
-    private EmissaoPedidoService pedidoService;
+    private EmissaoPedidoService emissaoPedido;
 
     @Autowired
     private PedidoModelAssembler pedidoModelAssembler;
 
+    @Autowired
+    private PedidoInputDisassembler pedidoInputDisassembler;
+
+    @Autowired
+    private PedidoResumoModelAssembler pedidoResumoModelAssembler;
     @GetMapping
-    public List<PedidoModel> listar(){
+    public List<PedidoResumoModel> listar() {
         List<Pedido> todosPedidos = pedidoRepository.findAll();
-        return  pedidoModelAssembler.toCollectionModel(todosPedidos);
+
+        return pedidoResumoModelAssembler.toCollectionModel(todosPedidos);
     }
 
     @GetMapping("/{pedidoId}")
-    public PedidoModel buscar(@PathVariable Long pedidoId){
-        Pedido pedido = pedidoService.buscarOuFalhar(pedidoId);
+    public PedidoModel buscar(@PathVariable Long pedidoId) {
+        Pedido pedido = emissaoPedido.buscarOuFalhar(pedidoId);
 
         return pedidoModelAssembler.toModel(pedido);
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public PedidoModel adicionar(@Valid @RequestBody PedidoInput pedidoInput) {
+        try {
+            Pedido novoPedido = pedidoInputDisassembler.toDomainObject(pedidoInput);
+
+            // TODO pegar usuário autenticado
+            novoPedido.setCliente(new Usuario());
+            novoPedido.getCliente().setId(1L);
+
+            novoPedido = emissaoPedido.emitir(novoPedido);
+
+            return pedidoModelAssembler.toModel(novoPedido);
+        } catch (EntidadeNaoEncontradaException e) {
+            throw new NegocioException(e.getMessage(), e);
+        }
     }
 }

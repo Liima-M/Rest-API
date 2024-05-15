@@ -9,7 +9,7 @@ import java.util.List;
 
 @Setter
 @Getter
-public class PedidoModel {
+public class PedidoResumoModel {
 
     private Long id;
     private BigDecimal subtotal;
@@ -17,13 +17,7 @@ public class PedidoModel {
     private BigDecimal valorTotal;
     private String status;
     private OffsetDateTime dataCriacao;
-    private OffsetDateTime dataConfirmacao;
-    private OffsetDateTime dataEntrega;
-    private OffsetDateTime dataCancelamento;
     private RestauranteResumoModel restaurante;
     private UsuarioModel cliente;
-    private FormaPagamentoModel formaPagamento;
-    private EnderecoModel enderecoEntrega;
-    private List<ItemPedidoModel> itens;
 
 }
