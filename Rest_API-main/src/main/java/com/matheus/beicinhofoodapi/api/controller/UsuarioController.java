@@ -4,6 +4,7 @@ import com.matheus.beicinhofoodapi.api.assembler.UsuarioInputDisassembler;
 import com.matheus.beicinhofoodapi.api.assembler.UsuarioModelAssembler;
 import com.matheus.beicinhofoodapi.api.model.UsuarioModel;
 import com.matheus.beicinhofoodapi.api.model.input.SenhaInput;
+import com.matheus.beicinhofoodapi.api.model.input.UsuarioComSenhaInput;
 import com.matheus.beicinhofoodapi.api.model.input.UsuarioInput;
 import com.matheus.beicinhofoodapi.domain.model.Usuario;
 import com.matheus.beicinhofoodapi.domain.repository.UsuarioRepository;
@@ -48,7 +49,7 @@ public class UsuarioController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UsuarioModel adicionar(@RequestBody @Valid UsuarioInput usuarioInput){
+    public UsuarioModel adicionar(@RequestBody @Valid UsuarioComSenhaInput usuarioInput){
         Usuario usuario = usuarioInputDisassembler.toDomainObject(usuarioInput);
         usuario = cadastroUsuario.salvar(usuario);
 

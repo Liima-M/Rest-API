@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 @RunWith(SpringRunner.class)
@@ -106,14 +107,18 @@ public class CadastroCozinhaIT {
             .then()
                 .statusCode(HttpStatus.NOT_FOUND.value());
     }
-    private void prepararDados(){
-        Cozinha cozinhaTailandesa = new Cozinha();
-        cozinhaTailandesa.setNome("Tailandesa");
-        cozinhaRepository.save(cozinhaTailandesa);
+    @Test
+    public void prepararDados(){
+        //Cozinha cozinhaTailandesa = new Cozinha();
+       // cozinhaTailandesa.setNome("Tailandesa");
+        //cozinhaRepository.save(cozinhaTailandesa);
 
         cozinhaIdiana = new Cozinha();
         cozinhaIdiana.setNome("Indiana");
         cozinhaRepository.save(cozinhaIdiana);
+
+        assertThat(cozinhaIdiana).isNotNull();
+        assertThat(cozinhaIdiana.getId()).isNotNull();
 
         quantidadeCozinhasCadastradas = (int) cozinhaRepository.count();
     }
