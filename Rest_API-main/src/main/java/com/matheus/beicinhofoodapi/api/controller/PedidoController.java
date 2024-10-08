@@ -11,8 +11,13 @@ import com.matheus.beicinhofoodapi.domain.exception.NegocioException;
 import com.matheus.beicinhofoodapi.domain.model.Pedido;
 import com.matheus.beicinhofoodapi.domain.model.Usuario;
 import com.matheus.beicinhofoodapi.domain.repository.PedidoRepository;
+import com.matheus.beicinhofoodapi.domain.repository.filter.PedidoFilter;
 import com.matheus.beicinhofoodapi.domain.service.EmissaoPedidoService;
+import com.matheus.beicinhofoodapi.infrastructure.repository.spec.PedidoSpecs;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -39,10 +44,14 @@ public class PedidoController {
     @Autowired
     private PedidoResumoModelAssembler pedidoResumoModelAssembler;
     @GetMapping
-    public List<PedidoResumoModel> listar() {
-        List<Pedido> todosPedidos = pedidoRepository.findAll();
+    public Page<PedidoResumoModel> pesquisar(PedidoFilter filtro, Pageable pageable) {
+        Page<Pedido> todosPedidos = pedidoRepository.findAll(PedidoSpecs.usandoFiltro(filtro), pageable);
 
-        return pedidoResumoModelAssembler.toCollectionModel(todosPedidos);
+        List<PedidoResumoModel> pedidoResumoModels =  pedidoResumoModelAssembler.toCollectionModel(todosPedidos.getContent());
+
+        Page<PedidoResumoModel> pedidoResumoModelPage = new PageImpl<>(pedidoResumoModels, pageable, todosPedidos.getTotalElements());
+
+        return pedidoResumoModelPage;
     }
 
     @GetMapping("/{codigoPedido}")
