@@ -1,7 +1,7 @@
 package com.matheus.beicinhofoodapi.infrastructure.repository.spec;
 
 import com.matheus.beicinhofoodapi.domain.model.Pedido;
-import com.matheus.beicinhofoodapi.domain.repository.filter.PedidoFilter;
+import com.matheus.beicinhofoodapi.domain.filter.PedidoFilter;
 import org.springframework.data.jpa.domain.Specification;
 
 

@@ -1,17 +1,19 @@
 package com.matheus.beicinhofoodapi.api.controller;
 
+import com.google.common.collect.ImmutableMap;
 import com.matheus.beicinhofoodapi.api.assembler.PedidoInputDisassembler;
 import com.matheus.beicinhofoodapi.api.assembler.PedidoModelAssembler;
 import com.matheus.beicinhofoodapi.api.assembler.PedidoResumoModelAssembler;
 import com.matheus.beicinhofoodapi.api.model.PedidoModel;
 import com.matheus.beicinhofoodapi.api.model.PedidoResumoModel;
 import com.matheus.beicinhofoodapi.api.model.input.PedidoInput;
+import com.matheus.beicinhofoodapi.core.data.PageableTranslator;
 import com.matheus.beicinhofoodapi.domain.exception.EntidadeNaoEncontradaException;
 import com.matheus.beicinhofoodapi.domain.exception.NegocioException;
 import com.matheus.beicinhofoodapi.domain.model.Pedido;
 import com.matheus.beicinhofoodapi.domain.model.Usuario;
 import com.matheus.beicinhofoodapi.domain.repository.PedidoRepository;
-import com.matheus.beicinhofoodapi.domain.repository.filter.PedidoFilter;
+import com.matheus.beicinhofoodapi.domain.filter.PedidoFilter;
 import com.matheus.beicinhofoodapi.domain.service.EmissaoPedidoService;
 import com.matheus.beicinhofoodapi.infrastructure.repository.spec.PedidoSpecs;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +21,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -43,8 +44,12 @@ public class PedidoController {
 
     @Autowired
     private PedidoResumoModelAssembler pedidoResumoModelAssembler;
+
     @GetMapping
     public Page<PedidoResumoModel> pesquisar(PedidoFilter filtro, Pageable pageable) {
+
+        pageable = traduzirPageable(pageable);
+
         Page<Pedido> todosPedidos = pedidoRepository.findAll(PedidoSpecs.usandoFiltro(filtro), pageable);
 
         List<PedidoResumoModel> pedidoResumoModels =  pedidoResumoModelAssembler.toCollectionModel(todosPedidos.getContent());
@@ -56,9 +61,22 @@ public class PedidoController {
 
     @GetMapping("/{codigoPedido}")
     public PedidoModel buscar(@PathVariable String codigoPedido) {
+
         Pedido pedido = emissaoPedido.buscarOuFalhar(codigoPedido);
 
         return pedidoModelAssembler.toModel(pedido);
+    }
+
+    private Pageable traduzirPageable(Pageable apiPageable){
+        var mapeamento = ImmutableMap.of(
+                "codigo","codigo",
+                "restaurante.nome","restaurante.nome",
+                "nomeCliente", "cliente.nome",
+                "valorTotal", "valorTotal"
+
+        );
+
+        return PageableTranslator.translate(apiPageable, mapeamento);
     }
 
     @PostMapping
