@@ -1,4 +1,4 @@
-package com.matheus.beicinhofoodapi.infrastructure.service;
+package com.matheus.beicinhofoodapi.infrastructure.service.query;
 
 import com.matheus.beicinhofoodapi.domain.filter.VendaDiariaFilter;
 import com.matheus.beicinhofoodapi.domain.model.Pedido;
